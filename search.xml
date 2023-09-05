@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>nmap</title>
+      <link href="/2023/08/31/nmap/"/>
+      <url>/2023/08/31/nmap/</url>
+      
+        <content type="html"><![CDATA[<p><img src="/pictures/nmap.png"></p><h2 id="一、端口扫描"><a href="#一、端口扫描" class="headerlink" title="一、端口扫描"></a>一、端口扫描</h2><h3 id="1、指定端口"><a href="#1、指定端口" class="headerlink" title="1、指定端口"></a>1、指定端口</h3><pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F;扫描主机的「开放端口」，在nmap后面直接跟主机IP（默认扫描1000个端口）nmap 192.168.10.3 &#x2F;&#x2F;使用 -p 参数，可以一次扫描单个端口、多个端口、或扫描一个范围的端口nmap 192.168.1.18 -p 80nmap 192.168.1.18 -p 1-80nmap 192.168.1.18 -p 80,3389,22,21nmap 192.168.1.18 -p 1-65535nmap 192.168.1.18 -p-# -p- 等价于 -p 1-65535<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><h3 id="2、指定扫描方式"><a href="#2、指定扫描方式" class="headerlink" title="2、指定扫描方式"></a>2、指定扫描方式</h3><h4 id="2-1-TCP全连接扫描"><a href="#2-1-TCP全连接扫描" class="headerlink" title="2.1 TCP全连接扫描"></a>2.1 TCP全连接扫描</h4><p>使用完整的三次握手建立链接，能够建立链接就判定端口开放，否则判定端口关闭。<br>(1)端口开放，就会进行完整的三次握手，成功建立链接，扫描结果中，STATE字段显示为 open 。<br>(2)端口关闭，就只能进行一次握手，无法建立链接，扫描结果中，STATE字段显示为 closed。</p><pre class="line-numbers language-none"><code class="language-none">nmap 192.168.1.18 -p 80 -sT<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h4 id="2-2-SYN半链接扫描"><a href="#2-2-SYN半链接扫描" class="headerlink" title="2.2 SYN半链接扫描"></a>2.2 SYN半链接扫描</h4><p>只进行两次握手，对方返回确认帧（ACK&#x3D;1）就判定端口开放，否则判定端口关闭。<br>(1)如果端口开放，就会进行两次握手，扫描结果中，STATE字段为 open 。<br>(2)如果端口关闭，就只有一次握手，扫描结果中，STATE字段为 closed。</p><pre class="line-numbers language-none"><code class="language-none">nmap 192.168.1.18 -p 80 -sS<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h4 id="2-3-隐秘扫描"><a href="#2-3-隐秘扫描" class="headerlink" title="2.3 隐秘扫描"></a>2.3 隐秘扫描</h4><p>隐秘扫描，只适用于Linux系统<br>向目标主机的端口发送TCP FIN包 或 Xmas tree包 或 Null包，如果收到RST响应包，就判定端口关闭，否则就判定端口开放或被屏蔽（open&#x2F;filtered）</p><pre class="line-numbers language-none"><code class="language-none">nmap 127.0.0.1 -p 80 -sF# Fin扫描nmap 127.0.0.1 -p 80 -sN# Null扫描（所有flags都为0的TCP包）nmap 127.0.0.1 -p 80 -sX# Xmas扫描（flags的FIN、URG、PUSH都为1的包）<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><h2 id="二、主机探测"><a href="#二、主机探测" class="headerlink" title="二、主机探测"></a>二、主机探测</h2><h3 id="1-sP-扫描一个网段主机存活数"><a href="#1-sP-扫描一个网段主机存活数" class="headerlink" title="1 -sP 扫描一个网段主机存活数"></a>1 -sP 扫描一个网段主机存活数</h3><p>扫描网段中有哪些主机在线，使用 -sP 参数，不扫描端口，只扫描[存活主机]。本质上是Ping扫描，能Ping通有回包，就判定主机在线。</p><pre class="line-numbers language-none"><code class="language-none">nmap -sP 192.168.31.0&#x2F;24nmap -sP 192.168.56.1-10  &#x2F;&#x2F;指定一个IP地址范围，扫描存活主机<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h3 id="2-P0-跳过Ping探测"><a href="#2-P0-跳过Ping探测" class="headerlink" title="2 -P0 跳过Ping探测"></a>2 -P0 跳过Ping探测</h3><pre class="line-numbers language-none"><code class="language-none">nmap -PO 10.12.120.41<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h2 id="三、服务识别"><a href="#三、服务识别" class="headerlink" title="三、服务识别"></a>三、服务识别</h2><p>扫描端口时，默认显示端口对应的服务，但不显示服务版本。 想要识别具体的[服务版本]，可以使用 -sV 参数。</p><pre class="line-numbers language-none"><code class="language-none">nmap 192.168.1.18 -p 80 -sV<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h2 id="四、系统识别"><a href="#四、系统识别" class="headerlink" title="四、系统识别"></a>四、系统识别</h2><p>想要识别[操作系统版本]，可以使用 -O 参数。</p><pre class="line-numbers language-none"><code class="language-none">nmap 192.168.31.180 -p 80 -O &#x2F;&#x2F;Nmap扫描出的系统版本并完全准确，仅供参考<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h2 id="五、扫描结果导出"><a href="#五、扫描结果导出" class="headerlink" title="五、扫描结果导出"></a>五、扫描结果导出</h2><p>Nmap的扫描结果可以保存到文件中，比如文本格式、XML格式。</p><h3 id="1、将扫描结果导出为-文本格式-，结果原样保存。"><a href="#1、将扫描结果导出为-文本格式-，结果原样保存。" class="headerlink" title="1、将扫描结果导出为[文本格式]，结果原样保存。"></a>1、将扫描结果导出为[文本格式]，结果原样保存。</h3><pre class="line-numbers language-none"><code class="language-none">nmap 192.168.1.18 -p 80 -oN result.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h3 id="2、将扫描结果导出为-xml格式-，结果的保存格式会发生变化。"><a href="#2、将扫描结果导出为-xml格式-，结果的保存格式会发生变化。" class="headerlink" title="2、将扫描结果导出为[xml格式]，结果的保存格式会发生变化。"></a>2、将扫描结果导出为[xml格式]，结果的保存格式会发生变化。</h3><pre class="line-numbers language-none"><code class="language-none">nmap 192.168.31.180 -p 80 -oX result.xml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> 工具 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> namp </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>我的第一篇博客</title>
+      <link href="/2023/05/07/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"/>
+      <url>/2023/05/07/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/</url>
+      
+        <content type="html"><![CDATA[<h2 id="第一"><a href="#第一" class="headerlink" title="第一"></a>第一</h2><pre class="line-numbers language-none"><code class="language-none">print(&quot;lol&quot;)print(&quot;op&quot;)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><h3 id="1-1"><a href="#1-1" class="headerlink" title="1.1"></a>1.1</h3><p><code>int a = 1</code></p><h2 id="第二"><a href="#第二" class="headerlink" title="第二"></a>第二</h2><blockquote><p>123</p><ol><li>op</li><li>lol<blockquote><ul><li>123</li><li>456</li></ul></blockquote></li></ol></blockquote><h3 id="2-1"><a href="#2-1" class="headerlink" title="2.1"></a>2.1</h3> <pre class="line-numbers language-none"><code class="language-none">int a int b<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><ul><li><p>1</p><ul><li>2<ul><li>3</li></ul></li></ul></li><li><p>1</p><ol><li>a</li><li>b<ol><li>C</li></ol></li></ol></li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> Test </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
